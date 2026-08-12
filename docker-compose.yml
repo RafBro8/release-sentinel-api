@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: release-sentinel-postgres
+    environment:
+      POSTGRES_DB: release_sentinel
+      POSTGRES_USER: release_sentinel
+      POSTGRES_PASSWORD: release_sentinel
+    ports:
+      - "5432:5432"
+    volumes:
+      - release-sentinel-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U release_sentinel -d release_sentinel"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  release-sentinel-postgres-data:
