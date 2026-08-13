@@ -25,16 +25,19 @@ This project is built to demonstrate backend development and SDET-quality engine
 - CI/CD quality gates
 - Professional test strategy documentation
 
-## Stage 1 Scope
+## Current Scope
 
-The current stage establishes the API foundation:
+The current stage establishes the API foundation and the first release tracking APIs:
 
 - Spring Boot application skeleton
 - Maven build configuration
 - Actuator health endpoint
 - PostgreSQL Docker Compose setup
 - OpenAPI/Swagger dependency
-- JUnit smoke test
+- Flyway database migrations
+- Project, environment, and release APIs
+- Global API error response contract
+- JUnit smoke, controller, and service tests
 - Initial project documentation
 
 ## Planned Stages
@@ -85,4 +88,4 @@ Useful URLs:
 
 ## Project Status
 
-Stage 1 is in progress and should be reviewed before the first commit.
+Stage 2 is in progress and should be reviewed before the second commit.
