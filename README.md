@@ -41,6 +41,7 @@ The current stage establishes the API foundation and the first release tracking 
 - Release quality gate summary with READY, AT_RISK, and BLOCKED recommendations
 - Global API error response contract
 - JUnit smoke, controller, service, workflow-rule, defect lifecycle, and quality gate tests
+- Rest Assured API regression tests for end-to-end release readiness workflows
 - Initial project documentation
 
 ## Planned Stages
@@ -91,4 +92,4 @@ Useful URLs:
 
 ## Project Status
 
-Stage 5 is in progress and should be reviewed before the fifth commit.
+Stage 6 is in progress and should be reviewed before the sixth commit.
