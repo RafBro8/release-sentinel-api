@@ -37,8 +37,9 @@ The current stage establishes the API foundation and the first release tracking 
 - Flyway database migrations
 - Project, environment, and release APIs
 - Test case, test run, and test execution APIs
+- Defect tracking APIs with release-blocking rules
 - Global API error response contract
-- JUnit smoke, controller, service, and workflow-rule tests
+- JUnit smoke, controller, service, workflow-rule, and defect lifecycle tests
 - Initial project documentation
 
 ## Planned Stages
@@ -89,4 +90,4 @@ Useful URLs:
 
 ## Project Status
 
-Stage 3 is in progress and should be reviewed before the third commit.
+Stage 4 is in progress and should be reviewed before the fourth commit.

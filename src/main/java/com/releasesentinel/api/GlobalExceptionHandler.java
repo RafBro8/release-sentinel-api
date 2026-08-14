@@ -2,6 +2,7 @@ package com.releasesentinel.api;
 
 import com.releasesentinel.api.dto.ApiErrorResponse;
 import com.releasesentinel.service.DuplicateResourceException;
+import com.releasesentinel.service.InvalidDefectStatusTransitionException;
 import com.releasesentinel.service.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
@@ -23,6 +24,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ApiErrorResponse> handleDuplicate(DuplicateResourceException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.CONFLICT, ex.getMessage(), request, Map.of());
+    }
+
+    @ExceptionHandler(InvalidDefectStatusTransitionException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidStatusTransition(
+            InvalidDefectStatusTransitionException ex,
+            HttpServletRequest request) {
         return buildError(HttpStatus.CONFLICT, ex.getMessage(), request, Map.of());
     }
 
