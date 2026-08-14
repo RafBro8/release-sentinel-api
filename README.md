@@ -36,8 +36,9 @@ The current stage establishes the API foundation and the first release tracking 
 - OpenAPI/Swagger dependency
 - Flyway database migrations
 - Project, environment, and release APIs
+- Test case, test run, and test execution APIs
 - Global API error response contract
-- JUnit smoke, controller, and service tests
+- JUnit smoke, controller, service, and workflow-rule tests
 - Initial project documentation
 
 ## Planned Stages
@@ -88,4 +89,4 @@ Useful URLs:
 
 ## Project Status
 
-Stage 2 is in progress and should be reviewed before the second commit.
+Stage 3 is in progress and should be reviewed before the third commit.

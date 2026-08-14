@@ -99,7 +99,7 @@ public class ReleaseTrackingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Release not found: " + releaseId)));
     }
 
-    private Project findProject(UUID projectId) {
+    public Project findProject(UUID projectId) {
         return projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found: " + projectId));
     }
