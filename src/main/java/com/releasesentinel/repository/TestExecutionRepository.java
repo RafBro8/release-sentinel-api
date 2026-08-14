@@ -10,4 +10,6 @@ public interface TestExecutionRepository extends JpaRepository<TestExecution, UU
     boolean existsByTestRunIdAndTestCaseId(UUID testRunId, UUID testCaseId);
 
     List<TestExecution> findByTestRunIdOrderByExecutedAtAsc(UUID testRunId);
+
+    List<TestExecution> findByTestRunReleaseIdOrderByExecutedAtAsc(UUID releaseId);
 }

@@ -38,8 +38,9 @@ The current stage establishes the API foundation and the first release tracking 
 - Project, environment, and release APIs
 - Test case, test run, and test execution APIs
 - Defect tracking APIs with release-blocking rules
+- Release quality gate summary with READY, AT_RISK, and BLOCKED recommendations
 - Global API error response contract
-- JUnit smoke, controller, service, workflow-rule, and defect lifecycle tests
+- JUnit smoke, controller, service, workflow-rule, defect lifecycle, and quality gate tests
 - Initial project documentation
 
 ## Planned Stages
@@ -90,4 +91,4 @@ Useful URLs:
 
 ## Project Status
 
-Stage 4 is in progress and should be reviewed before the fourth commit.
+Stage 5 is in progress and should be reviewed before the fifth commit.
