@@ -43,6 +43,7 @@ The current stage establishes the API foundation and the first release tracking 
 - JUnit smoke, controller, service, workflow-rule, defect lifecycle, and quality gate tests
 - Rest Assured API regression tests for end-to-end release readiness workflows
 - PostgreSQL Testcontainers integration tests for database-backed API validation
+- Postman collection and Newman workflow for manual and CLI API validation
 - Initial project documentation
 
 ## Planned Stages
@@ -92,6 +93,16 @@ Run PostgreSQL-backed integration tests:
 mvn verify
 ```
 
+Run the Postman/Newman workflow:
+
+```bash
+npx newman run postman/release-sentinel-api.postman_collection.json \
+  -e postman/release-sentinel-local.postman_environment.json
+```
+
+The Postman collection can also be imported manually from `postman/release-sentinel-api.postman_collection.json`
+with the local environment file at `postman/release-sentinel-local.postman_environment.json`.
+
 Useful URLs:
 
 - Health: `http://localhost:8080/actuator/health`
@@ -99,4 +110,4 @@ Useful URLs:
 
 ## Project Status
 
-Stage 7 is in progress and should be reviewed before the seventh commit.
+Stage 8 is in progress and should be reviewed before the eighth commit.

@@ -1,0 +1,464 @@
+{
+  "info": {
+    "_postman_id": "fbf4c903-1b45-4b41-a34f-efc6a21bdce0",
+    "name": "Release Sentinel API",
+    "description": "End-to-end API workflow for Release Sentinel. The collection creates release quality data, records a failed test execution, links a critical defect, and verifies the release quality summary returns BLOCKED.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.environment.get('runSuffix')) {",
+          "  pm.environment.set('runSuffix', Date.now().toString().slice(-8));",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Status Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/status",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "status"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status check returns 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "pm.test('service is up', function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.service).to.eql('Release Sentinel API');",
+              "  pm.expect(body.status).to.eql('UP');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Create Project",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"key\": \"RS{{runSuffix}}\",\n  \"name\": \"Release Sentinel Demo {{runSuffix}}\",\n  \"description\": \"Postman workflow project\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/projects",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "projects"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('project created', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const body = pm.response.json();",
+              "pm.environment.set('projectId', body.id);",
+              "pm.test('project id is returned', function () {",
+              "  pm.expect(body.id).to.be.a('string');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Create Environment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"staging-{{runSuffix}}\",\n  \"type\": \"STAGING\",\n  \"baseUrl\": \"https://staging.example.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/projects/{{projectId}}/environments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "projects",
+            "{{projectId}}",
+            "environments"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('environment created', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const body = pm.response.json();",
+              "pm.environment.set('environmentId', body.id);",
+              "pm.test('environment belongs to project', function () {",
+              "  pm.expect(body.projectId).to.eql(pm.environment.get('projectId'));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Create Release",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": \"1.0.{{runSuffix}}\",\n  \"status\": \"IN_TEST\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/projects/{{projectId}}/releases",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "projects",
+            "{{projectId}}",
+            "releases"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('release created', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const body = pm.response.json();",
+              "pm.environment.set('releaseId', body.id);",
+              "pm.test('release starts in test', function () {",
+              "  pm.expect(body.status).to.eql('IN_TEST');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Create Test Case",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Checkout API confirms order {{runSuffix}}\",\n  \"description\": \"Critical checkout API regression scenario\",\n  \"priority\": \"CRITICAL\",\n  \"type\": \"API\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/projects/{{projectId}}/test-cases",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "projects",
+            "{{projectId}}",
+            "test-cases"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('test case created', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const body = pm.response.json();",
+              "pm.environment.set('testCaseId', body.id);",
+              "pm.test('test case is critical API coverage', function () {",
+              "  pm.expect(body.priority).to.eql('CRITICAL');",
+              "  pm.expect(body.type).to.eql('API');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Create Test Run",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"environmentId\": \"{{environmentId}}\",\n  \"name\": \"Postman regression run {{runSuffix}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/releases/{{releaseId}}/test-runs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "releases",
+            "{{releaseId}}",
+            "test-runs"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('test run created', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const body = pm.response.json();",
+              "pm.environment.set('testRunId', body.id);",
+              "pm.test('test run is in progress', function () {",
+              "  pm.expect(body.status).to.eql('IN_PROGRESS');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Add Failed Test Execution",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"testCaseId\": \"{{testCaseId}}\",\n  \"result\": \"FAILED\",\n  \"notes\": \"Checkout confirmation returned 500\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/test-runs/{{testRunId}}/executions",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "test-runs",
+            "{{testRunId}}",
+            "executions"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('test execution created', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const body = pm.response.json();",
+              "pm.environment.set('testExecutionId', body.id);",
+              "pm.test('execution result is failed', function () {",
+              "  pm.expect(body.result).to.eql('FAILED');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Create Linked Critical Defect",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Checkout confirmation fails {{runSuffix}}\",\n  \"description\": \"Critical defect linked to failed API execution\",\n  \"severity\": \"CRITICAL\",\n  \"priority\": \"URGENT\",\n  \"linkedTestExecutionId\": \"{{testExecutionId}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/releases/{{releaseId}}/defects",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "releases",
+            "{{releaseId}}",
+            "defects"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('defect created', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const body = pm.response.json();",
+              "pm.environment.set('defectId', body.id);",
+              "pm.test('critical defect blocks release', function () {",
+              "  pm.expect(body.severity).to.eql('CRITICAL');",
+              "  pm.expect(body.blockingRelease).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Get Quality Summary",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/releases/{{releaseId}}/quality-summary",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "releases",
+            "{{releaseId}}",
+            "quality-summary"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('quality summary returns 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const body = pm.response.json();",
+              "pm.test('release is blocked by quality signals', function () {",
+              "  pm.expect(body.status).to.eql('BLOCKED');",
+              "  pm.expect(body.failed).to.eql(1);",
+              "  pm.expect(body.openCriticalDefects).to.eql(1);",
+              "  pm.expect(body.blockingDefects).to.eql(1);",
+              "  pm.expect(body.riskReasons).to.include('Release has open critical defects');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Negative: Invalid Project Key",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"key\": \"bad-key\",\n  \"name\": \"Invalid Project\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/projects",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "projects"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('invalid project returns 400', function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "pm.test('validation contract includes field error', function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.message).to.eql('Request validation failed');",
+              "  pm.expect(body.fieldErrors.key).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
