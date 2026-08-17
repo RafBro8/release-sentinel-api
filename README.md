@@ -22,12 +22,12 @@ This project is built to demonstrate backend development and SDET-quality engine
 - Rest Assured API regression testing
 - Testcontainers database testing
 - Postman/Newman API validation
-- CI/CD quality gates
+- GitHub Actions CI quality gates
 - Professional test strategy documentation
 
 ## Current Scope
 
-The current stage establishes the API foundation and the first release tracking APIs:
+The current stage establishes a production-style backend API with automated quality validation:
 
 - Spring Boot application skeleton
 - Maven build configuration
@@ -44,6 +44,7 @@ The current stage establishes the API foundation and the first release tracking 
 - Rest Assured API regression tests for end-to-end release readiness workflows
 - PostgreSQL Testcontainers integration tests for database-backed API validation
 - Postman collection and Newman workflow for manual and CLI API validation
+- GitHub Actions CI pipeline running the full Maven verification suite
 - Initial project documentation
 
 ## Planned Stages
@@ -59,7 +60,9 @@ The current stage establishes the API foundation and the first release tracking 
 | 7 | Testcontainers | Real PostgreSQL integration tests |
 | 8 | Postman/Newman | Manual and CLI API validation |
 | 9 | CI/CD | Automated build and quality pipeline |
-| 10 | Portfolio polish | Diagrams, examples, and final showcase docs |
+| 10 | Production deployment prep | Docker image, production config, and deploy docs |
+| 11 | Render deployment | Public API deployment with managed PostgreSQL |
+| 12 | Portfolio polish | Diagrams, examples, and final showcase docs |
 
 ## Local Development
 
@@ -108,6 +111,19 @@ Useful URLs:
 - Health: `http://localhost:8080/actuator/health`
 - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
 
+## Continuous Integration
+
+GitHub Actions runs the project quality gate on every push and pull request to `master`.
+
+The CI workflow executes:
+
+```bash
+mvn --batch-mode --no-transfer-progress verify
+```
+
+That command runs the unit tests, Spring MVC/controller tests, Rest Assured API regression tests, and PostgreSQL Testcontainers integration tests.
+If the workflow fails, Maven Surefire and Failsafe reports are uploaded as GitHub Actions artifacts for debugging.
+
 ## Project Status
 
-Stage 8 is in progress and should be reviewed before the eighth commit.
+Stage 9 is complete. The API now has local, Postman/Newman, Rest Assured, Testcontainers, and GitHub Actions validation coverage.
