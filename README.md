@@ -17,7 +17,7 @@ This project is built to demonstrate backend development and SDET-quality engine
 - Java 21 and Spring Boot API development
 - RESTful endpoint design
 - PostgreSQL-backed persistence
-- Dockerized local development
+- Dockerized local and production-style runtime
 - JUnit 5 unit and integration testing
 - Rest Assured API regression testing
 - Testcontainers database testing
@@ -27,7 +27,7 @@ This project is built to demonstrate backend development and SDET-quality engine
 
 ## Current Scope
 
-The current stage establishes a production-style backend API with automated quality validation:
+The current stage establishes a production-ready backend foundation with automated quality validation:
 
 - Spring Boot application skeleton
 - Maven build configuration
@@ -45,6 +45,7 @@ The current stage establishes a production-style backend API with automated qual
 - PostgreSQL Testcontainers integration tests for database-backed API validation
 - Postman collection and Newman workflow for manual and CLI API validation
 - GitHub Actions CI pipeline running the full Maven verification suite
+- Dockerfile and production Spring profile for deployable runtime packaging
 - Initial project documentation
 
 ## Planned Stages
@@ -111,6 +112,59 @@ Useful URLs:
 - Health: `http://localhost:8080/actuator/health`
 - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
 
+## Docker Runtime
+
+Build the production-style Docker image:
+
+```bash
+docker build -t release-sentinel-api .
+```
+
+Run the API image against the local PostgreSQL container:
+
+```bash
+docker run --rm \
+  --name release-sentinel-api \
+  --network release-sentinel-api_default \
+  -p 8080:10000 \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/release_sentinel \
+  -e SPRING_DATASOURCE_USERNAME=release_sentinel \
+  -e SPRING_DATASOURCE_PASSWORD=release_sentinel \
+  release-sentinel-api
+```
+
+Then verify:
+
+```bash
+curl http://localhost:8080/api/status
+curl http://localhost:8080/actuator/health
+```
+
+## Production Configuration
+
+The `prod` Spring profile is designed for container hosting.
+
+Runtime environment variables:
+
+| Variable | Purpose | Example |
+| --- | --- | --- |
+| `PORT` | HTTP port exposed by the hosting platform | `10000` |
+| `SPRING_DATASOURCE_URL` | JDBC connection string for PostgreSQL | `jdbc:postgresql://host:5432/release_sentinel` |
+| `SPRING_DATASOURCE_USERNAME` | PostgreSQL username | `release_sentinel` |
+| `SPRING_DATASOURCE_PASSWORD` | PostgreSQL password | Render secret value |
+| `JAVA_OPTS` | Optional JVM tuning | `-XX:MaxRAMPercentage=75` |
+
+Render Docker deployment checklist:
+
+- Create a PostgreSQL database in Render.
+- Create a Web Service from the GitHub repository.
+- Select Docker as the runtime so Render builds from the repository `Dockerfile`.
+- Set `SPRING_PROFILES_ACTIVE=prod`.
+- Set `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` from the Render PostgreSQL connection details.
+- Use `/actuator/health` as the health check path.
+
+Render web services should bind to `0.0.0.0` and use the `PORT` environment variable. The production profile handles that through `server.address` and `server.port`.
+
 ## Continuous Integration
 
 GitHub Actions runs the project quality gate on every push and pull request to `master`.
@@ -126,4 +180,4 @@ If the workflow fails, Maven Surefire and Failsafe reports are uploaded as GitHu
 
 ## Project Status
 
-Stage 9 is complete. The API now has local, Postman/Newman, Rest Assured, Testcontainers, and GitHub Actions validation coverage.
+Stage 10 is complete. The API now has Docker packaging and production-profile configuration for deployment preparation.
