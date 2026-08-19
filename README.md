@@ -31,6 +31,7 @@ The current stage establishes a production-ready backend foundation with automat
 
 - Spring Boot application skeleton
 - Maven build configuration
+- Root API info endpoint for deployed portfolio visitors
 - Actuator health endpoint
 - PostgreSQL Docker Compose setup
 - OpenAPI/Swagger dependency
@@ -109,6 +110,8 @@ with the local environment file at `postman/release-sentinel-local.postman_envir
 
 Useful URLs:
 
+- API info: `http://localhost:8080/`
+- Status: `http://localhost:8080/api/status`
 - Health: `http://localhost:8080/actuator/health`
 - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
 
@@ -136,6 +139,7 @@ docker run --rm \
 Then verify:
 
 ```bash
+curl http://localhost:8080/
 curl http://localhost:8080/api/status
 curl http://localhost:8080/actuator/health
 ```
@@ -180,4 +184,4 @@ If the workflow fails, Maven Surefire and Failsafe reports are uploaded as GitHu
 
 ## Project Status
 
-Stage 10 is complete. The API now has Docker packaging and production-profile configuration for deployment preparation.
+Stage 11 deployment is live. The API is deployed to Render and includes a root info endpoint for public portfolio visitors.

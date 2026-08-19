@@ -17,6 +17,16 @@ class SystemControllerTest {
     private MockMvc mockMvc;
 
     @Test
+    void getApiInfoReturnsPublicEndpointLinks() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.service", equalTo("Release Sentinel API")))
+                .andExpect(jsonPath("$.statusUrl", equalTo("/api/status")))
+                .andExpect(jsonPath("$.healthUrl", equalTo("/actuator/health")))
+                .andExpect(jsonPath("$.docsUrl", equalTo("/swagger-ui/index.html")));
+    }
+
+    @Test
     void getStatusReturnsApiStatus() throws Exception {
         mockMvc.perform(get("/api/status"))
                 .andExpect(status().isOk())
