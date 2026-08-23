@@ -232,3 +232,20 @@ Potential future enhancements:
 | 10 | Production deployment prep | Docker image, production config, and deploy docs |
 | 11 | Render deployment | Public API deployment with managed PostgreSQL |
 | 12 | Portfolio polish | README, architecture notes, and test strategy documentation |
+
+## Live Portfolio Demo
+
+Live dashboard: https://release-sentinel-dashboard.vercel.app
+
+Live API: https://release-sentinel-api.onrender.com
+
+Dashboard repository: https://github.com/RafBro8/release-sentinel-dashboard
+
+## How To Review This Project
+
+1. Open the React dashboard.
+2. Use the API status view to confirm the Render API is reachable.
+3. Run the demo scenario from the dashboard.
+4. Inspect the generated release readiness result.
+5. Open Swagger to review the API contract.
+6. Review the automated quality layers: JUnit service tests, Spring MVC controller tests, Rest Assured regression tests, PostgreSQL Testcontainers, Postman/Newman, Playwright, and GitHub Actions CI.
