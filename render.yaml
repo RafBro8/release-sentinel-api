@@ -1,0 +1,44 @@
+# Render Blueprint for the hosted Release Sentinel demo.
+#
+# Render deletes free Postgres instances 30 days after they are created. That is a
+# fixed expiry rather than an inactivity timeout, so the demo database has to be
+# rebuilt periodically. This file exists to make that rebuild quick and safe.
+#
+# Rebuilding:
+#   1. Delete the expired database in the Render Dashboard.
+#   2. Re-sync this Blueprint.
+# Render recreates the database and rewires DATABASE_URL itself, so the password is
+# never copied by hand. Flyway then replays V1 to V4, and V4 restores the demo data.
+#
+# Naming note: both resources below use the names of the resources that already exist
+# in the workspace, so a sync adopts them rather than creating duplicates.
+
+databases:
+  - name: release-sentinel-db
+    plan: free
+    region: ohio
+    postgresMajorVersion: "16"
+    databaseName: release_sentinel
+    user: release_sentinel
+
+services:
+  - type: web
+    name: release-sentinel-api
+    runtime: docker
+    plan: free
+    region: ohio
+    healthCheckPath: /actuator/health
+    # The service has always been deployed manually. Keep it that way so a push
+    # does not redeploy the demo unannounced.
+    # Quoted because an unquoted off is boolean false to a YAML 1.1 parser.
+    autoDeployTrigger: "off"
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      # Render supplies the private network connection string, including the
+      # password. DatabaseUrlEnvironmentPostProcessor converts it to a jdbc: URL,
+      # which Blueprint references cannot express on their own.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: release-sentinel-db
+          property: connectionString

@@ -117,19 +117,46 @@ Runtime environment variables:
 | Variable | Purpose |
 | --- | --- |
 | `SPRING_PROFILES_ACTIVE` | Set to `prod` |
-| `SPRING_DATASOURCE_URL` | PostgreSQL JDBC URL |
-| `SPRING_DATASOURCE_USERNAME` | Database username |
-| `SPRING_DATASOURCE_PASSWORD` | Database password |
+| `DATABASE_URL` | Postgres connection string, supplied by Render |
 | `PORT` | Render-provided port |
 | `JAVA_OPTS` | Optional JVM flags |
 
-Important datasource format:
+`render.yaml` wires `DATABASE_URL` to the database with a `fromDatabase` reference, so
+Render injects the credentials itself and the password is never copied by hand.
+
+Render supplies the connection string in the form below, which the PostgreSQL JDBC
+driver cannot read:
 
 ```text
-jdbc:postgresql://host:5432/database
+postgresql://user:password@host:port/database
 ```
 
-The username and password should be stored separately in `SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD`.
+`DatabaseUrlEnvironmentPostProcessor` converts it at startup into
+`spring.datasource.url`, `spring.datasource.username` and `spring.datasource.password`.
+A Blueprint reference cannot build a `jdbc:` URL on its own, because Render exposes no
+separate `host` property for a database, only the whole connection string.
+
+When `DATABASE_URL` is absent the application falls back to the ordinary
+`SPRING_DATASOURCE_*` variables, which is how local development and the tests run. When
+it is present it wins, so a leftover `SPRING_DATASOURCE_URL` pointing at a replaced
+database cannot quietly take over.
+
+## Rebuilding the demo database
+
+Render deletes free Postgres instances 30 days after creation. This is a fixed expiry,
+not an inactivity timeout, so keeping the service warm does not prevent it. When the
+database expires the API fails to start with `UnknownHostException` on the internal
+hostname, because that name stops resolving.
+
+To rebuild:
+
+1. Delete the expired database in the Render Dashboard.
+2. Re-sync the Blueprint.
+
+Render recreates the database in Ohio, which must match the service region for the
+internal hostname to resolve, and rewires `DATABASE_URL`. Flyway then replays `V1`
+through `V4`, and `V4__seed_demo_data.sql` restores the demo data. There is no backup;
+that seed migration is the recovery mechanism.
 
 ## CI/CD
 
